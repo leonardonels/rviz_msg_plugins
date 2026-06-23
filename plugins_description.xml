@@ -1,0 +1,19 @@
+<library path="mmr_rviz_plugins">
+  <!--
+    One <class> per display. `type` is the fully-qualified C++ class (must match
+    PLUGINLIB_EXPORT_CLASS in the .cpp). `base_class_type` is always
+    rviz_common::Display for an RViz display plugin. `name` is what RViz shows in
+    Add > By display type, grouped by the path before the slash.
+  -->
+  <class
+    name="mmr_rviz_plugins/SpeedProfile"
+    type="mmr_rviz_plugins::SpeedProfileDisplay"
+    base_class_type="rviz_common::Display">
+    <description>
+      Visualizes mmr_base/msg/SpeedProfilePoints as a colored trajectory: a
+      sphere per waypoint (blue=slow, red=fast) connected by a path line. The
+      message has no Header, so the reference TF frame is chosen in the display.
+    </description>
+    <message_type>mmr_base/msg/SpeedProfilePoints</message_type>
+  </class>
+</library>
