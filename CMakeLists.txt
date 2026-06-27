@@ -35,6 +35,8 @@ find_package(Qt5 REQUIRED COMPONENTS Widgets)
 add_library(${PROJECT_NAME} SHARED
   src/speed_profile_display.cpp
   include/mmr_rviz_plugins/speed_profile_display.hpp
+  src/bounded_point_cloud_display.cpp
+  include/mmr_rviz_plugins/bounded_point_cloud_display.hpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
