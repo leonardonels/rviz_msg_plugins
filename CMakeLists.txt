@@ -33,8 +33,6 @@ find_package(Qt5 REQUIRED COMPONENTS Widgets)
 # must be named explicitly or moc never runs and the class vtable is undefined
 # (dlopen fails with "undefined symbol: ...SpeedProfileDisplay...").
 add_library(${PROJECT_NAME} SHARED
-  src/speed_profile_display.cpp
-  include/mmr_rviz_plugins/speed_profile_display.hpp
   src/bounded_point_cloud_display.cpp
   include/mmr_rviz_plugins/bounded_point_cloud_display.hpp
 )

@@ -7,17 +7,6 @@
   -->
 
   <class
-    name="mmr_rviz_plugins/SpeedProfile"
-    type="mmr_rviz_plugins::SpeedProfileDisplay"
-    base_class_type="rviz_common::Display">
-    <description>
-      Visualizes mmr_base/msg/SpeedProfilePoints as a colored trajectory: a
-      sphere per waypoint (blue=slow, red=fast) connected by a path line. The
-      message has no Header, so the reference TF frame is chosen in the display.
-    </description>
-    <message_type>mmr_base/msg/SpeedProfilePoints</message_type>
-  </class>
-  <class
     name="mmr_rviz_plugins/BoundedPointCloud"
     type="mmr_rviz_plugins::BoundedPointCloudDisplay"
     base_class_type="rviz_common::Display">
