@@ -1,4 +1,4 @@
-<library path="mmr_rviz_plugins">
+<library path="rviz_msg_plugins">
   <!--
     One <class> per display. `type` is the fully-qualified C++ class (must match
     PLUGINLIB_EXPORT_CLASS in the .cpp). `base_class_type` is always
@@ -7,13 +7,13 @@
   -->
 
   <class
-    name="mmr_rviz_plugins/BoundedPointCloud"
-    type="mmr_rviz_plugins::BoundedPointCloudDisplay"
+    name="rviz_msg_plugins/LivoxCustomMsg"
+    type="rviz_msg_plugins::LivoxCustomMsgDisplay"
     base_class_type="rviz_common::Display">
     <description>
-      Visualizes mmr_base/msg/BoundedPointcloud by converting it directly inside RViz2.
-      The message has no Header, so the reference TF frame is chosen in the display.
+      Visualizes livox_ros_driver2/msg/CustomMsg by converting it to PointCloud2
+      inside RViz2. The frame is taken from the message header (livox_frame).
     </description>
-    <message_type>mmr_base/msg/BoundedPointcloud</message_type>
+    <message_type>livox_ros_driver2/msg/CustomMsg</message_type>
   </class>
 </library>

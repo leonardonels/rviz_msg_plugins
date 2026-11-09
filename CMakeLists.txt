@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(mmr_rviz_plugins)
+project(rviz_msg_plugins)
 
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 17)
@@ -20,9 +20,8 @@ find_package(pluginlib REQUIRED)
 find_package(rviz_common REQUIRED)
 find_package(rviz_rendering REQUIRED)
 find_package(rviz_default_plugins REQUIRED)
-find_package(geometry_msgs REQUIRED)
-find_package(ackermann_msgs REQUIRED)
-find_package(mmr_base REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(livox_ros_driver2 REQUIRED)
 
 find_package(Qt5 REQUIRED COMPONENTS Widgets)
 
@@ -31,10 +30,10 @@ find_package(Qt5 REQUIRED COMPONENTS Widgets)
 # IMPORTANT: also list each Q_OBJECT *header* — AUTOMOC only auto-scans headers
 # that sit next to a source of the same name. Ours live under include/, so they
 # must be named explicitly or moc never runs and the class vtable is undefined
-# (dlopen fails with "undefined symbol: ...SpeedProfileDisplay...").
+# (dlopen fails with "undefined symbol: ...LivoxCustomMsgDisplay...").
 add_library(${PROJECT_NAME} SHARED
-  src/bounded_point_cloud_display.cpp
-  include/mmr_rviz_plugins/bounded_point_cloud_display.hpp
+  src/livox_custom_msg_display.cpp
+  include/rviz_msg_plugins/livox_custom_msg_display.hpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
@@ -51,13 +50,12 @@ ament_target_dependencies(${PROJECT_NAME}
   rviz_common
   rviz_rendering
   rviz_default_plugins
-  geometry_msgs
-  ackermann_msgs
-  mmr_base
+  sensor_msgs
+  livox_ros_driver2
 )
 
 # Some RViz headers expect this define for symbol visibility on the boundary.
-target_compile_definitions(${PROJECT_NAME} PRIVATE "MMR_RVIZ_PLUGINS_BUILDING_LIBRARY")
+target_compile_definitions(${PROJECT_NAME} PRIVATE "RVIZ_MSG_PLUGINS_BUILDING_LIBRARY")
 
 # --- Plugin registration ----------------------------------------------------
 # Tells pluginlib (via rviz_common) where to find the manifest at runtime.
@@ -86,7 +84,7 @@ ament_export_dependencies(
   rviz_common
   rviz_rendering
   rviz_default_plugins
-  mmr_base
+  livox_ros_driver2
 )
 
 if(BUILD_TESTING)

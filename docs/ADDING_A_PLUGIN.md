@@ -1,11 +1,11 @@
 # Authoring a new RViz2 display plugin
 
 This guide explains how RViz custom displays work and walks through adding a new
-one to this package for **any** message type. The shipped `SpeedProfileDisplay`
-is the running example; read its source alongside this document —
-[`include/mmr_rviz_plugins/speed_profile_display.hpp`](../include/mmr_rviz_plugins/speed_profile_display.hpp)
-and [`src/speed_profile_display.cpp`](../src/speed_profile_display.cpp) are
-commented to match the sections below.
+one to this package for **any** message type. The shipped
+`LivoxCustomMsgDisplay` is a worked example of a Case A display (§2); read its
+source alongside this document —
+[`include/rviz_msg_plugins/livox_custom_msg_display.hpp`](../include/rviz_msg_plugins/livox_custom_msg_display.hpp)
+and [`src/livox_custom_msg_display.cpp`](../src/livox_custom_msg_display.cpp).
 
 ---
 
@@ -65,7 +65,7 @@ scene_node_->setOrientation(orientation);
 
 ### Case B — message has NO Header → `RosTopicDisplay<T>`
 
-`SpeedProfilePoints` is this case: it carries only points, no frame or stamp.
+Use this for messages that carry only data, with no frame or stamp.
 `MessageFilterDisplay` **cannot** be used (it requires a header to filter on).
 Instead derive from `rviz_common::RosTopicDisplay<T>`, which still gives you the
 topic dropdown, subscription, and `processMessage`, but leaves frame handling to
@@ -84,8 +84,7 @@ if (!context_->getFrameManager()->getTransform(frame, position, orientation)) {
 
 > **Best practice:** if you control the message and it represents something
 > spatial, add a `std_msgs/Header` to it and use Case A. Case B exists for
-> messages you can't change. `SpeedProfilePoints` chose Case B deliberately to
-> avoid editing the shared `mmr_base` interface and its publisher.
+> messages you can't change.
 
 There is also a third, lower-level base — `rviz_common::Display` — when you
 aren't driven by a single topic (e.g. a tool, or a display that subscribes to
@@ -97,7 +96,7 @@ several topics). You then manage your own subscription.
 
 For a new display called `FooDisplay` rendering `my_msgs/msg/Foo`:
 
-1. `include/mmr_rviz_plugins/foo_display.hpp` — the class declaration.
+1. `include/rviz_msg_plugins/foo_display.hpp` — the class declaration.
 2. `src/foo_display.cpp` — the implementation + `PLUGINLIB_EXPORT_CLASS`.
 3. Add a `<class>` entry to `plugins_description.xml`.
 4. Add the `.cpp` to `add_library(...)` in `CMakeLists.txt`, and `find_package`
@@ -105,7 +104,7 @@ For a new display called `FooDisplay` rendering `my_msgs/msg/Foo`:
 5. Add the new message package to `package.xml` as a `<depend>`.
 
 You do **not** create a new `.so` per display — all displays in this package
-compile into the single `libmmr_rviz_plugins.so`. Just list each `.cpp`.
+compile into the single `librviz_msg_plugins.so`. Just list each `.cpp`.
 
 ---
 
@@ -177,9 +176,12 @@ Useful `rviz_rendering` objects (parent them to `scene_node_`):
 - `rviz_rendering::PointCloud` — many points efficiently.
 - `rviz_rendering::Arrow`, `Axes`, `MovableText`, ...
 
-> **Performance note:** the example rebuilds all `Shape`s each message, which is
-> fine for a trajectory. For high-rate or high-count data, pool and reuse
-> objects, or use `PointCloud`, instead of allocating per message.
+> **Performance note:** rebuilding `Shape`s each message is fine for a few
+> markers. For high-rate or high-count data, pool and reuse objects, or use
+> `PointCloud`, instead of allocating per message. For point clouds the easiest
+> route is `rviz_default_plugins::PointCloudCommon`: convert your message to a
+> `PointCloud2` and call `addMessage()` — `LivoxCustomMsgDisplay` does exactly
+> this and gets RViz's Style / Size / Color Transformer options for free.
 
 ### reset / destructor — tidy up
 
@@ -194,10 +196,10 @@ visuals in `std::shared_ptr` (or a `std::vector` of them) makes teardown a
 ### `plugins_description.xml`
 
 ```xml
-<library path="mmr_rviz_plugins">
+<library path="rviz_msg_plugins">
   <class
-    name="mmr_rviz_plugins/Foo"
-    type="mmr_rviz_plugins::FooDisplay"
+    name="rviz_msg_plugins/Foo"
+    type="rviz_msg_plugins::FooDisplay"
     base_class_type="rviz_common::Display">
     <description>What it visualizes.</description>
     <message_type>my_msgs/msg/Foo</message_type>
@@ -214,17 +216,17 @@ visuals in `std::shared_ptr` (or a `std::vector` of them) makes teardown a
 
 ```cpp
 #include <pluginlib/class_list_macros.hpp>
-PLUGINLIB_EXPORT_CLASS(mmr_rviz_plugins::FooDisplay, rviz_common::Display)
+PLUGINLIB_EXPORT_CLASS(rviz_msg_plugins::FooDisplay, rviz_common::Display)
 ```
 
 ### `CMakeLists.txt`
 
 ```cmake
 add_library(${PROJECT_NAME} SHARED
-  src/speed_profile_display.cpp
-  include/mmr_rviz_plugins/speed_profile_display.hpp   # existing
-  src/foo_display.cpp                                  # <-- add
-  include/mmr_rviz_plugins/foo_display.hpp             # <-- add the header too!
+  src/livox_custom_msg_display.cpp
+  include/rviz_msg_plugins/livox_custom_msg_display.hpp   # existing
+  src/foo_display.cpp                                     # <-- add
+  include/rviz_msg_plugins/foo_display.hpp                # <-- add the header too!
 )
 # if my_msgs is new:
 find_package(my_msgs REQUIRED)
@@ -250,15 +252,14 @@ Add `<depend>my_msgs</depend>` if you introduced a new message package.
 
 ```bash
 cd ~/ros2_ws
-colcon build --packages-select mmr_rviz_plugins
+colcon build --packages-select rviz_msg_plugins
 source install/setup.bash
 rviz2
 ```
 
-In RViz: **Add → By display type → mmr_rviz_plugins → Foo**, set the **Topic**
-(and **Reference Frame** for a Case-B display). Publish a test message (see the
-README's smoke-test snippet) and confirm geometry appears and the display's
-**Status** row is green.
+In RViz: **Add → By display type → rviz_msg_plugins → Foo**, set the **Topic**
+(and **Reference Frame** for a Case-B display). Publish a test message and
+confirm geometry appears and the display's **Status** row is green.
 
 ### Common pitfalls
 
@@ -271,8 +272,7 @@ README's smoke-test snippet) and confirm geometry appears and the display's
 - **Crash on add** → you forgot `RTDClass::onInitialize()` (base call) before
   touching `context_` / `scene_node_`.
 - **Properties don't apply until next message** → connect each property's
-  `changed()` signal to a slot, cache the last message, and re-render there
-  (see `updateStyle()` in the example).
+  `changed()` signal to a slot, cache the last message, and re-render there.
 - **Points invisible / "transform" error** → Fixed Frame and the data's frame
   aren't connected in TF, or (Case B) the Reference Frame is wrong.
 - **`dlopen` `undefined symbol: ...YourDisplay` (missing vtable)** → moc didn't
